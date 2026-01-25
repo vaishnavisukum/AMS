@@ -1,0 +1,45 @@
+# Secrets
+.env
+config/database.php
+config/config.php
+
+# Debug / test scripts
+debug_*.php
+test_*.php
+check_*.php
+fix_*.php
+add_*.php
+verify_attendance_rule.php
+FIX_SUMMARY.md
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# User uploads (if any)
+uploads/
+temp/
+
+# Database files
+*.db
+.db
+
+# Backup files
+*.bak
+*.backup
+

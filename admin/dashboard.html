@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AMS</title>
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 AMS</h2>
+                <p id="adminName">Loading...</p>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-view="statistics">
+                    <span>📊</span> Statistics
+                </a>
+                <a href="#" class="menu-item" data-view="subject-attendance">
+                    <span>📚</span> Subject Attendance
+                </a>
+                <a href="#" class="menu-item" data-view="campus-attendance">
+                    <span>🏫</span> Campus Attendance
+                </a>
+                <a href="#" class="menu-item" data-view="campus-qr">
+                    <span>📱</span> Campus QR Code
+                </a>
+                <a href="#" class="menu-item" data-view="add-faculty">
+                    <span>➕</span> Add Faculty
+                </a>
+                <a href="#" class="menu-item" onclick="logout()">
+                    <span>🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="top-bar">
+                <h1>Admin Dashboard</h1>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                </div>
+            </div>
+            
+            <!-- Statistics View -->
+            <div id="statistics-view" class="view-content">
+                <h2>System Statistics</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <div class="stat-value" id="totalStudents">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Faculty</h3>
+                        <div class="stat-value" id="totalFaculty">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Subjects</h3>
+                        <div class="stat-value" id="totalSubjects">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Sessions</h3>
+                        <div class="stat-value" id="activeSessions">-</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Today's Attendance Summary</h3>
+                    <div class="stats-grid">
+                        <div>
+                            <h4>Campus Attendance</h4>
+                            <div id="campusStats">Loading...</div>
+                        </div>
+                        <div>
+                            <h4>Subject Attendance</h4>
+                            <div id="subjectStats">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Students with Low Attendance (Below 75%)</h3>
+                    <p class="text-muted">This table shows all students with overall or subject-specific attendance below 75%</p>
+                    <div id="lowAttendanceContainer">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subject Attendance View -->
+            <div id="subject-attendance-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Subject Attendance Records</h2>
+                    
+                    <div class="filter-bar">
+                        <div class="form-group">
+                            <label for="filterSubject">Subject</label>
+                            <select id="filterSubject">
+                                <option value="">All Subjects</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterStudent">Student ID</label>
+                            <input type="text" id="filterStudent" placeholder="Enter student ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterDateFrom">From Date</label>
+                            <input type="date" id="filterDateFrom">
+                        </div>
+                        <div class="form-group">
+                            <label for="filterDateTo">To Date</label>
+                            <input type="date" id="filterDateTo">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary" onclick="loadSubjectAttendance()">Filter</button>
+                        </div>
+                    </div>
+                    
+                    <div id="subjectAttendanceTable">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campus Attendance View -->
+            <div id="campus-attendance-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Campus Attendance Records</h2>
+                    
+                    <div class="filter-bar">
+                        <div class="form-group">
+                            <label for="campusFilterStudent">Student ID</label>
+                            <input type="text" id="campusFilterStudent" placeholder="Enter student ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="campusFilterDateFrom">From Date</label>
+                            <input type="date" id="campusFilterDateFrom">
+                        </div>
+                        <div class="form-group">
+                            <label for="campusFilterDateTo">To Date</label>
+                            <input type="date" id="campusFilterDateTo">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary" onclick="loadCampusAttendance()">Filter</button>
+                        </div>
+                    </div>
+                    
+                    <div id="campusAttendanceTable">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campus QR View -->
+            <div id="campus-qr-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Campus QR Code</h2>
+                    <p class="text-center">Display this QR code at campus entrances for students to scan.</p>
+                    
+                    <div class="qr-container">
+                        <div class="qr-code-display">
+                            <img id="campusQRImage" src="" alt="Campus QR Code">
+                        </div>
+                        <div class="qr-info">
+                            <p><strong>Type:</strong> Campus Attendance</p>
+                            <p><strong>Valid:</strong> All Day</p>
+                            <p><strong>Date:</strong> <span id="qrDate"></span></p>
+                        </div>
+                        <button class="btn btn-primary mt-20" onclick="refreshCampusQR()">Refresh QR Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Faculty View -->
+            <div id="add-faculty-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Add Faculty</h2>
+                    <p>Only admins can create faculty accounts. Provide unique username, email, and faculty ID.</p>
+                    <form id="addFacultyForm">
+                        <div class="form-group">
+                            <label for="facultyFullName">Full Name</label>
+                            <input type="text" id="facultyFullName" name="full_name" placeholder="Dr. Jane Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="facultyUsername">Username</label>
+                            <input type="text" id="facultyUsername" name="username" placeholder="faculty3" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="facultyEmail">Email</label>
+                            <input type="email" id="facultyEmail" name="email" placeholder="jane.doe@ams.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="facultyId">Faculty ID</label>
+                            <input type="text" id="facultyId" name="faculty_id" placeholder="FAC003" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="facultyPassword">Password</label>
+                            <input type="password" id="facultyPassword" name="password" placeholder="Min 6 characters" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Faculty</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>
+

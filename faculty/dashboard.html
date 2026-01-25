@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - AMS</title>
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 AMS</h2>
+                <p id="facultyName">Loading...</p>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-view="sessions">
+                    <span>📊</span> Active Sessions
+                </a>
+                <a href="#" class="menu-item" data-view="start-attendance">
+                    <span>▶️</span> Start Attendance
+                </a>
+                <a href="#" class="menu-item" data-view="schedule-lecture">
+                    <span>📅</span> Schedule Lecture
+                </a>
+                <a href="#" class="menu-item" data-view="timetable">
+                    <span>📋</span> My Timetable
+                </a>
+                <a href="#" class="menu-item" data-view="logs">
+                    <span>📝</span> Attendance Logs
+                </a>
+                <a href="#" class="menu-item" onclick="logout()">
+                    <span>🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="top-bar">
+                <h1>Faculty Dashboard</h1>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                </div>
+            </div>
+            
+            <!-- Active Sessions View -->
+            <div id="sessions-view" class="view-content">
+                <div class="card">
+                    <h2>Active Attendance Sessions</h2>
+                    <div id="activeSessions">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Start Attendance View -->
+            <div id="start-attendance-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Start New Attendance Session</h2>
+                    <form id="startAttendanceForm">
+                        <div class="form-group">
+                            <label for="subjectSelect">Select Subject</label>
+                            <select id="subjectSelect" name="subject_id" required>
+                                <option value="">Loading...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="timetableSelect">Link to Timetable Slot (Optional)</label>
+                            <select id="timetableSelect" name="timetable_id">
+                                <option value="">No timetable link</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Start Attendance Session</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Schedule Lecture View -->
+            <div id="schedule-lecture-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Schedule New Lecture</h2>
+                    <form id="scheduleLectureForm">
+                        <div class="form-group">
+                            <label for="scheduleSubject">Select Subject</label>
+                            <select id="scheduleSubject" name="subject_id" required>
+                                <option value="">Loading...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="scheduleDate">Lecture Date</label>
+                            <input type="date" id="scheduleDate" name="lecture_date" required>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="scheduleStartTime">Start Time</label>
+                                <input type="time" id="scheduleStartTime" name="start_time" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="scheduleEndTime">End Time</label>
+                                <input type="time" id="scheduleEndTime" name="end_time" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="scheduleRoom">Room Number (Optional)</label>
+                            <input type="text" id="scheduleRoom" name="room_number" placeholder="e.g., Room 101, Lab 1">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Schedule Lecture</button>
+                    </form>
+                </div>
+                
+                <!-- Lectures Summary -->
+                <div class="card" style="margin-top: 40px;">
+                    <h2>📊 Lecture Statistics</h2>
+                    <div id="lecturesSummaryContainer">
+                        <p class="text-center">Loading lecture statistics...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timetable View -->
+            <div id="timetable-view" class="view-content hidden">
+                <div class="card">
+                    <h2>My Weekly Timetable</h2>
+                    <button class="btn btn-secondary btn-sm" style="margin-bottom: 15px;" onclick='document.querySelector(".menu-item[data-view=\"schedule-lecture\"]").click()'>
+                        ➕ Add New Lecture
+                    </button>
+                    <div id="timetableContainer">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+                
+                <!-- Past Lectures View -->
+                <div class="card" style="margin-top: 30px;">
+                    <h2>Search Lectures</h2>
+                    <div class="form-group">
+                        <label for="pastDatePicker">Select Date to View</label>
+                        <input type="date" id="pastDatePicker">
+                    </div>
+                    <div id="pastLecturesContainer">
+                        <p class="text-center">Select a date to view past lectures</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs View -->
+            <div id="logs-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Modify Student Attendance</h2>
+                    <p>Modify attendance records for students on specific dates. All changes are logged for audit purposes.</p>
+                    
+                    <form id="modifyAttendanceForm" style="margin-bottom: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                        <div class="form-group">
+                            <label for="modifyStudentId">Student ID</label>
+                            <input type="text" id="modifyStudentId" placeholder="Enter student ID (e.g., STU001)" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifySubject">Subject</label>
+                            <select id="modifySubject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyDate">Attendance Date</label>
+                            <input type="date" id="modifyDate" required>
+                        </div>
+                        <div class="form-group" id="sessionSelectorGroup" style="display: none;">
+                            <label for="modifySession">Select Lecture Session</label>
+                            <select id="modifySession" required>
+                                <option value="">Select a session</option>
+                            </select>
+                            <p class="text-light" style="margin-top: 5px; font-size: 0.9em;">Multiple lectures found for this date and subject</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyStatus">New Status</label>
+                            <select id="modifyStatus" required>
+                                <option value="present">Present</option>
+                                <option value="absent">Absent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modifyReason">Reason</label>
+                            <textarea id="modifyReason" rows="3" placeholder="Reason for modification" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Modify Attendance</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h2>Attendance Modification Logs</h2>
+                    <p>All manual attendance changes are logged here for audit purposes.</p>
+                    
+                    <div id="logsTable">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Session Details Modal -->
+    <div id="sessionModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Attendance Session</h3>
+                <span class="close" onclick="closeSessionModal()">&times;</span>
+            </div>
+            <div id="sessionDetails">
+                <!-- Session details will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Manual Attendance Modal -->
+    <div id="manualAttendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manual Attendance</h3>
+                <span class="close" onclick="closeManualModal()">&times;</span>
+            </div>
+            <form id="manualAttendanceForm">
+                <input type="hidden" id="manualSessionId" name="session_id">
+                <div class="form-group">
+                    <label for="studentIdInput">Student ID</label>
+                    <input type="number" id="studentIdInput" name="student_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="statusSelect">Status</label>
+                    <select id="statusSelect" name="status" required>
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reasonInput">Reason (Optional)</label>
+                    <textarea id="reasonInput" name="reason" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Mark Attendance</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- End Session Modal -->
+    <div id="endSessionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>End Attendance Session</h3>
+                <span class="close" onclick="closeEndModal()">&times;</span>
+            </div>
+            <form id="endSessionForm">
+                <input type="hidden" id="endSessionId" name="session_id">
+                <div id="endSessionInfo"></div>
+                <div class="form-group">
+                    <label for="physicalHeadcount">Physical Headcount</label>
+                    <input type="number" id="physicalHeadcount" name="physical_headcount" min="0" required>
+                </div>
+                <p class="text-light">Enter the actual number of students present in the classroom.</p>
+                <button type="submit" class="btn btn-danger">End Session</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="../assets/js/common.js"></script>
+    <script src="../assets/js/faculty.js"></script>
+</body>
+</html>
+

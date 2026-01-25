@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - AMS</title>
+    <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 AMS</h2>
+                <p id="studentName">Loading...</p>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" data-view="scanner">
+                    <span>📷</span> QR Scanner
+                </a>
+                <a href="#" class="menu-item" data-view="history">
+                    <span>📋</span> Attendance History
+                </a>
+                <a href="#" class="menu-item" data-view="timetable">
+                    <span>📅</span> Timetable
+                </a>
+                <a href="#" class="menu-item" onclick="logout()">
+                    <span>🚪</span> Logout
+                </a>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="top-bar">
+                <h1>Student Dashboard</h1>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                </div>
+            </div>
+            
+            <!-- QR Scanner View -->
+            <div id="scanner-view" class="view-content">
+                <div class="card">
+                    <h2>Scan QR Code</h2>
+                    <div class="scanner-container">
+                        <div id="reader"></div>
+                        <div id="scan-result" class="scan-result" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>How to Mark Attendance</h3>
+                    <ol>
+                        <li><strong>Campus Attendance:</strong> Scan the campus QR code displayed at campus entrances. Available all day.</li>
+                        <li><strong>Subject Attendance:</strong> Scan the QR code shown by your faculty during class. Only available when session is active.</li>
+                        <li>Allow camera access when prompted.</li>
+                        <li>Point your camera at the QR code.</li>
+                        <li>Wait for automatic detection and confirmation.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <!-- Attendance History View -->
+            <div id="history-view" class="view-content hidden">
+                <div class="card">
+                    <h2>Average Subject Attendance</h2>
+                    <div style="display: flex; gap: 30px; align-items: center;">
+                        <div style="flex: 1; max-width: 200px;">
+                            <canvas id="averageSubjectChart"></canvas>
+                        </div>
+                        <div id="subjectAvgStatsText" style="flex: 1;">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Subject-wise Attendance Summary</h2>
+                    <div id="subjectChartsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Subject Attendance History (Detailed)</h2>
+                    <table id="subjectAttendanceTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Subject</th>
+                                <th>Faculty</th>
+                                <th>Status</th>
+                                <th>Marked At</th>
+                                <th>Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h2>Lecture-wise Attendance</h2>
+                    <p>Dropdown shows how many lectures you attended for each subject.</p>
+                    <div id="lectureWiseContainer">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Campus Attendance History</h2>
+                    <table id="campusAttendanceTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Marked At</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Timetable View -->
+            <div id="timetable-view" class="view-content hidden">
+                <div class="card">
+                    <h2>My Weekly Timetable</h2>
+                    <div id="timetableContainer">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+                
+                <!-- Search Lectures View -->
+                <div class="card" style="margin-top: 30px;">
+                    <h2>Search Lectures</h2>
+                    <div class="form-group">
+                        <label for="pastDatePicker">Select Date to View</label>
+                        <input type="date" id="pastDatePicker">
+                    </div>
+                    <div id="pastLecturesContainer">
+                        <p class="text-center">Select a date to view lectures</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="../assets/js/common.js?v=2"></script>
+    <script src="../assets/js/student.js?v=2"></script>
+</body>
+</html>
+
