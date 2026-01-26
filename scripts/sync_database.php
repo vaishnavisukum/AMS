@@ -12,7 +12,8 @@ if (!is_dir($logDir)) {
   @mkdir($logDir, 0777, true);
 }
 $logFile = $logDir . '/sync_database_' . date('Y-m-d') . '.log';
-function logMessage($message) {
+function logMessage($message)
+{
   global $logFile;
   $ts = date('Y-m-d H:i:s');
   $line = "[$ts] $message" . PHP_EOL;
@@ -217,9 +218,9 @@ $triggers = [
 foreach ($triggers as $trigger) {
   $ok = $conn->query($trigger);
   if ($ok) {
-  logMessage('✓ Trigger executed');
+    logMessage('✓ Trigger executed');
   } else {
-  logMessage('✗ Trigger error: ' . $conn->error);
+    logMessage('✗ Trigger error: ' . $conn->error);
   }
 }
 
