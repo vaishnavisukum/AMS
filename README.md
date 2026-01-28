@@ -16,15 +16,32 @@ QR-powered attendance with student, faculty, and admin portals. Includes timetab
 3. Start services: Apache + MySQL in XAMPP; open `http://localhost/AMS-ai/`.
 4. Optional: run `php sync_database.php` to verify triggers and data integrity.
 
-## Apply Migrations (recommended order)
+## Database Setup in phpMyAdmin
 
-If running manually:
+Execute the following files in phpMyAdmin in this exact order:
 
-- `database/schema.sql`
-- `database/migration_add_lecture_date.sql`
-- `database/migration_add_auto_absent.sql`
-- `database/add_past_lectures.sql`
-  Then run `php sync_database.php` to validate triggers and fill any missing sessions.
+1. **`database/schema.sql`** - First (creates all tables and initial structure)
+   - Creates: users, subjects, timetable, attendance_sessions, subject_attendance, campus_attendance, attendance_logs
+
+2. **`database/migration_add_lecture_date.sql`** - Second (adds lecture_date column)
+   - Adds `lecture_date` column to timetable table
+   - Safe to run even if column exists (has check)
+
+3. **`database/migration_add_auto_absent.sql`** - Third (modifies enum)
+   - Adds 'auto_absent' option to marked_method enum
+
+4. **`database/sync_and_integrity.sql`** - Fourth (ensures data consistency)
+   - Syncs attendance_sessions with timetable entries
+   - Creates missing session records
+
+5. **`database/add_past_lectures.sql`** - Fifth (optional - test data)
+   - Adds sample past lectures for testing
+   - Only run if you need test data
+
+6. **`database/test_low_attendance.sql`** - Last (optional - test data)
+   - For testing low attendance features
+
+**Note:** For a fresh installation, start with schema.sql. If you already have a database, skip schema.sql and only run the migration files you haven't executed yet.
 
 ## Database Integration & Setup Module
 
