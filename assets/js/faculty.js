@@ -33,7 +33,21 @@ let currentSessionId;
     // Set minimum date for scheduling to today and keep day-of-week in sync
     setScheduleDateMin();
     attachScheduleDateSync();
+    
+    // Setup date input display format handler
+    setupDateInputDisplay();
 })();
+
+// Setup date input to show placeholder hint for DD/MM/YYYY format
+function setupDateInputDisplay() {
+    const dateInput = document.getElementById('scheduleDate');
+    if (!dateInput) return;
+    
+    // Show the calendar popup when input is focused
+    dateInput.addEventListener('focus', () => {
+        dateInput.showPicker?.();
+    });
+}
 
 // Setup navigation
 function setupNavigation() {

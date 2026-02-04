@@ -33,11 +33,10 @@ async function logout() {
 // Format date
 function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
 }
 
 // Format time
@@ -119,4 +118,80 @@ function createStatusBadge(status) {
     const displayText = status === 'auto_absent' ? 'Auto Absent' : status.replace('_', ' ').toUpperCase().replace(/^./, c => c.toUpperCase());
     return `<span class="badge ${getStatusBadgeClass(status)}">${displayText}</span>`;
 }
+
+// Initialize responsive sidebar toggle
+function initResponsiveSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const toggle = document.querySelector('.sidebar-toggle');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    if (!sidebar || !toggle || !overlay) {
+        return;
+    }
+
+    const openSidebar = () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('show');
+        document.body.classList.add('no-scroll');
+    };
+
+    const closeSidebar = () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.classList.remove('no-scroll');
+    };
+
+    toggle.addEventListener('click', () => {
+        if (sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeSidebar();
+        }
+    });
+
+    sidebar.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 1023) {
+                closeSidebar();
+            }
+        });
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            closeSidebar();
+        }
+    });
+}
+
+// Wrap tables in horizontal scroll container for small screens
+function wrapTablesForScroll() {
+    const tables = document.querySelectorAll('table');
+
+    tables.forEach(table => {
+        if (table.closest('.table-scroll')) {
+            return;
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-scroll';
+
+        const parent = table.parentNode;
+        parent.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initResponsiveSidebar();
+    wrapTablesForScroll();
+});
 

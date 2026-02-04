@@ -29,10 +29,14 @@
                 </a>
             </nav>
         </aside>
+        <div class="sidebar-overlay"></div>
         
         <main class="main-content">
             <div class="top-bar">
-                <h1>Student Dashboard</h1>
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" type="button" aria-label="Open menu">☰</button>
+                    <h1>Student Dashboard</h1>
+                </div>
                 <div class="user-info">
                     <span id="userEmail"></span>
                 </div>
@@ -42,6 +46,15 @@
             <div id="scanner-view" class="view-content">
                 <div class="card">
                     <h2>Scan QR Code</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button id="requestCameraBtn" class="btn btn-primary">
+                            🎥 Request Camera Permission
+                        </button>
+                        <button id="uploadQRBtn" class="btn btn-secondary" onclick="document.getElementById('qrFileInput').click();">
+                            📸 Upload QR Image
+                        </button>
+                        <input type="file" id="qrFileInput" accept="image/*" style="display: none;">
+                    </div>
                     <div class="scanner-container">
                         <div id="reader"></div>
                         <div id="scan-result" class="scan-result" style="display: none;"></div>
@@ -53,8 +66,8 @@
                     <ol>
                         <li><strong>Campus Attendance:</strong> Scan the campus QR code displayed at campus entrances. Available all day.</li>
                         <li><strong>Subject Attendance:</strong> Scan the QR code shown by your faculty during class. Only available when session is active.</li>
-                        <li>Allow camera access when prompted.</li>
-                        <li>Point your camera at the QR code.</li>
+                        <li><strong>Option 1 (Live Camera):</strong> Click "Request Camera Permission" and point your camera at the QR code.</li>
+                        <li><strong>Option 2 (Upload Image):</strong> Click "Upload QR Image" to select a picture of the QR code from your device.</li>
                         <li>Wait for automatic detection and confirmation.</li>
                     </ol>
                 </div>

@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /faculty/
+Disallow: /student/
+Disallow: /api/
+Disallow: /config/
+Disallow: /database/
+Disallow: /utils/
+Disallow: /scripts/
+Disallow: *.php
+
+Allow: /index.html
+Allow: /student_signup.html
+Allow: /assets/

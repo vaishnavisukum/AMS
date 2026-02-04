@@ -35,10 +35,14 @@
                 </a>
             </nav>
         </aside>
+        <div class="sidebar-overlay"></div>
         
         <main class="main-content">
             <div class="top-bar">
-                <h1>Faculty Dashboard</h1>
+                <div class="top-bar-left">
+                    <button class="sidebar-toggle" type="button" aria-label="Open menu">☰</button>
+                    <h1>Faculty Dashboard</h1>
+                </div>
                 <div class="user-info">
                     <span id="userEmail"></span>
                 </div>
@@ -91,8 +95,9 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="scheduleDate">Lecture Date</label>
+                            <label for="scheduleDate">Lecture Date </label>
                             <input type="date" id="scheduleDate" name="lecture_date" required>
+                            <small style="color: #666; margin-top: 5px; display: block;">Format: DD/MM/YYYY</small>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">

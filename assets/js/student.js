@@ -23,10 +23,21 @@ let scannerRunning = false;
     
     // Setup navigation
     setupNavigation();
-
-    // Default view is scanner, so start scanner when page loads
-    initQRScanner();
+    
+    console.log('✅ Student dashboard loaded');
 })();
+
+// Request camera permission after page is fully loaded and visible
+window.addEventListener('load', () => {
+    console.log('Page fully loaded');
+    
+    // Reset flags for fresh initialization
+    scannerInitialized = false;
+    scannerRunning = false;
+    
+    // Do NOT request camera permission automatically - let user click the button
+    console.log('Camera permission request will be triggered by user clicking the button');
+});
 
 // Setup navigation
 function setupNavigation() {
@@ -55,8 +66,8 @@ function setupNavigation() {
             
             // Control camera usage based on view
             if (viewName === 'scanner') {
-                // Only start/resume scanner on scanner view
-                initQRScanner();
+                // Start scanner when user navigates to scanner view
+                startScanner();
             } else {
                 // Stop scanner when leaving scanner view to release camera
                 stopQRScanner();
@@ -70,6 +81,245 @@ function setupNavigation() {
             }
         });
     });
+    
+    // Setup camera permission request button
+    const requestCameraBtn = document.getElementById('requestCameraBtn');
+    if (requestCameraBtn) {
+        requestCameraBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            console.log('Camera permission button clicked');
+            await requestCameraPermissionOnLoad();
+        });
+    }
+    
+    // Setup QR file upload handler
+    const qrFileInput = document.getElementById('qrFileInput');
+    if (qrFileInput) {
+        qrFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('QR image file selected:', file.name, 'Type:', file.type, 'Size:', file.size);
+                
+                // Validate it's an image file
+                if (!file.type.startsWith('image/')) {
+                    showError('Please select a valid image file.');
+                    return;
+                }
+                
+                await scanQRFromFile(file);
+                // Reset file input so same file can be uploaded again
+                qrFileInput.value = '';
+            }
+        });
+    }
+    
+    // Check camera permission status and show/hide button
+    checkCameraPermission();
+}
+
+// Check camera permission status
+async function checkCameraPermission() {
+    try {
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        const requestCameraBtn = document.getElementById('requestCameraBtn');
+        
+        if (permission.state === 'granted') {
+            // Camera permission is granted - hide button
+            if (requestCameraBtn) {
+                requestCameraBtn.style.display = 'none';
+            }
+        } else {
+            // State is 'prompt' or 'denied' - show button to allow user to request
+            if (requestCameraBtn) {
+                requestCameraBtn.style.display = 'block';
+            }
+        }
+        
+        // Listen for permission changes
+        permission.addEventListener('change', () => {
+            if (permission.state === 'granted') {
+                if (requestCameraBtn) {
+                    requestCameraBtn.style.display = 'none';
+                }
+            } else {
+                if (requestCameraBtn) {
+                    requestCameraBtn.style.display = 'block';
+                }
+            }
+        });
+    } catch (error) {
+        console.warn('Could not check camera permission:', error);
+        // If we can't check permission, show the button as a fallback
+        const requestCameraBtn = document.getElementById('requestCameraBtn');
+        if (requestCameraBtn) {
+            requestCameraBtn.style.display = 'block';
+        }
+    }
+}
+
+// Request camera permission immediately on dashboard load
+async function requestCameraPermissionOnLoad() {
+    try {
+        console.log('requestCameraPermissionOnLoad() called - requesting camera access...');
+        console.log('About to call navigator.mediaDevices.getUserMedia()');
+        
+        // ALWAYS request permission fresh - don't use cached decision
+        // This will show the dialog every time or use the user's saved preference
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false
+        });
+
+        // ✅ Permission GRANTED - stop stream and initialize scanner
+        console.log('✅ Camera permission GRANTED - stream received');
+        
+        // Hide the request camera permission button
+        const requestCameraBtn = document.getElementById('requestCameraBtn');
+        if (requestCameraBtn) {
+            requestCameraBtn.style.display = 'none';
+        }
+        
+        stream.getTracks().forEach(track => {
+            console.log('Stopping track:', track.kind);
+            track.stop(); // Stop all tracks to release camera
+        });
+        
+        // Small delay to ensure camera is fully released before reinitializing
+        setTimeout(() => {
+            console.log('Reinitializing scanner after 100ms delay...');
+            // Re-initialize scanner fresh each time
+            if (html5QrCode) {
+                html5QrCode = null; // Clear old instance
+            }
+            html5QrCode = new Html5Qrcode("reader");
+            scannerInitialized = true;
+            console.log('Scanner initialized, auto-opening scanner view...');
+            
+            // Auto-open QR Scanner view after permission is granted
+            autoOpenScannerView();
+            
+            // Start scanning immediately
+            initQRScanner();
+        }, 100);
+        
+    } catch (error) {
+        // ❌ Permission denied or blocked
+        console.error('Camera permission error caught in catch block:', error.name, error.message);
+        
+        // Show the request camera permission button on permission error
+        const requestCameraBtn = document.getElementById('requestCameraBtn');
+        if (requestCameraBtn) {
+            requestCameraBtn.style.display = 'block';
+        }
+        
+        if (error.name === 'NotAllowedError') {
+            console.warn('⚠️ User denied camera permission (NotAllowedError)');
+            alert('Camera access is required to scan QR codes and mark attendance.\n\nPlease enable camera permission in your browser settings to proceed.');
+        } else if (error.name === 'NotFoundError') {
+            console.warn('❌ No camera device found (NotFoundError)');
+            alert('No camera found on this device. Please use a device with a camera.');
+        } else if (error.name === 'NotReadableError') {
+            console.warn('Camera is in use by another application (NotReadableError)');
+            alert('Camera is currently in use by another application. Please close it and try again.');
+        } else {
+            console.warn('Unknown camera permission error:', error.name, error.message);
+            alert('Could not access camera. Please check permissions and try again.');
+        }
+    }
+}
+
+// Auto-open QR Scanner view
+function autoOpenScannerView() {
+    // Get all menu items and remove active class
+    const menuItems = document.querySelectorAll('.menu-item[data-view]');
+    menuItems.forEach(item => item.classList.remove('active'));
+    
+    // Set scanner menu item as active
+    const scannerMenuItem = document.querySelector('.menu-item[data-view="scanner"]');
+    if (scannerMenuItem) {
+        scannerMenuItem.classList.add('active');
+    }
+    
+    // Hide all views
+    document.querySelectorAll('.view-content').forEach(view => {
+        view.classList.add('hidden');
+    });
+    
+    // Show scanner view
+    const scannerView = document.getElementById('scanner-view');
+    if (scannerView) {
+        scannerView.classList.remove('hidden');
+    }
+    
+    console.log('✅ QR Scanner view auto-opened');
+}
+
+// Start scanner when user navigates to scanner view
+function startScanner() {
+    if (scannerInitialized) {
+        initQRScanner();
+    } else {
+        console.warn('Scanner not initialized. Camera permission may have been denied.');
+        showError('Camera access is required. Please allow camera permission in browser settings.');
+    }
+}
+
+// Scan QR code from an uploaded image file
+async function scanQRFromFile(file) {
+    try {
+        // Validate the file parameter
+        if (!file || !(file instanceof File)) {
+            console.error('Invalid file object:', file);
+            showError('Invalid file. Please select an image file.');
+            return;
+        }
+        
+        console.log('Starting QR scan from file:', file.name, 'Type:', file.type);
+        
+        // Show processing message
+        const resultDiv = document.getElementById('scan-result');
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'scan-result';
+        resultDiv.innerHTML = '<div class="spinner"></div><p>Processing image...</p>';
+        
+        // Initialize html5QrCode if not already done
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
+        }
+        
+        try {
+            // Scan the image - pass the File object directly
+            console.log('Calling scanFile with file object...');
+            const decodedText = await html5QrCode.scanFile(file, true);
+            console.log('✅ QR code decoded from image:', decodedText);
+            
+            // Process the scanned QR data
+            await onScanSuccess(decodedText);
+            
+        } catch (error) {
+            console.error('Error scanning QR from file:', error.message || error);
+            resultDiv.className = 'scan-result error-message';
+            resultDiv.innerHTML = `
+                <h3>❌ No QR Code Found</h3>
+                <p>Could not find or read a QR code in the uploaded image. Please try another image.</p>
+            `;
+            showError('No QR code found in the image. Please try another image.');
+        }
+        
+    } catch (error) {
+        console.error('Error in scanQRFromFile:', error.message || error);
+        const resultDiv = document.getElementById('scan-result');
+        resultDiv.className = 'scan-result error-message';
+        resultDiv.innerHTML = `
+            <h3>❌ Error</h3>
+            <p>An error occurred while processing the image. Please try again.</p>
+        `;
+        showError('An error occurred. Please try again.');
+    }
 }
 
 // Initialize / start QR Scanner (only when scanner view is active)

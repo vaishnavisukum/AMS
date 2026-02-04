@@ -91,6 +91,15 @@ body {
     border-color: var(--primary-color);
 }
 
+/* Date input styling for DD/MM/YYYY format */
+input[type="date"] {
+    font-family: 'Arial', sans-serif;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
 .btn {
     padding: 12px 24px;
     border: none;
@@ -186,6 +195,9 @@ body {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
 }
 
 .sidebar-header {
@@ -230,15 +242,15 @@ body {
 
 .main-content {
     flex: 1;
-    margin-left: 260px;
-    padding: 30px;
+    margin-left: 0;
+    padding: 20px;
 }
 
 .top-bar {
     background-color: var(--white);
     padding: 20px 30px;
     box-shadow: var(--shadow);
-    margin: -30px -30px 30px -30px;
+    margin: -20px -20px 20px -20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -247,6 +259,37 @@ body {
 .top-bar h1 {
     font-size: 1.75rem;
     color: var(--text-color);
+    margin: 0;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.sidebar-toggle {
+    display: inline-flex;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    flex-shrink: 0;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 90;
 }
 
 .user-info {
@@ -366,6 +409,12 @@ table th {
 
 table tr:hover {
     background-color: var(--bg-color);
+}
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Badge */
@@ -495,31 +544,83 @@ table tr:hover {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (min-width: 1024px) {
+    body {
+        overflow-x: visible;
+    }
+
     .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+        transform: translateX(0);
     }
-    
+
+    .sidebar-toggle {
+        display: none;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+
     .main-content {
-        margin-left: 0;
+        margin-left: 260px;
+        padding: 30px;
     }
-    
+
+    .top-bar {
+        margin: -30px -30px 30px -30px;
+    }
+}
+
+@media (max-width: 1023px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .dashboard,
+    .main-content,
+    .card,
+    .top-bar {
+        max-width: 100%;
+    }
+
+    img,
+    canvas,
+    svg {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    .table-scroll table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 600px) {
     .top-bar {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .filter-bar {
         flex-direction: column;
     }
-    
+
     .filter-bar .form-group {
         width: 100%;
     }
@@ -540,6 +641,23 @@ table tr:hover {
 
 .hidden {
     display: none !important;
+}
+
+.no-scroll {
+    overflow: hidden;
+}
+
+/* Logs Table Container with Scrollbar */
+#logsTable {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+#logsTable table {
+    margin-top: 0;
 }
 
 /* Low Attendance Table Styles */
